@@ -35,9 +35,9 @@ services:
       interval: 15s
       timeout: 10s
       retries: 2
-  consumer-server:
-    container_name: consumer-server
-    build: ./management-consumer-service
+  processor-server:
+    container_name: processor-server
+    build: ./management-processor-service
     image: consumer
     ports:
       - 8081:8081
@@ -50,9 +50,9 @@ services:
         condition: service_healthy
     links:
       - rabbitmq-container
-  producer-server:
-    container_name: producer-server
-    build: ./management-producer-service
+  producer-consumer-server:
+    container_name: producer-consumer-server
+    build: ./management-producer-consumer-service
     image: producer
     ports:
       - 8082:8082

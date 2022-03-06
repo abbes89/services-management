@@ -9,8 +9,8 @@
 	<description>Demo project for Spring Boot</description>
 	<modules>
 		<module>management-service</module>
-		<module>management-consumer-service</module>
-		<module>management-producer-service</module>
+		<module>management-processor-service</module>
+		<module>management-producer-consumer-service</module>
 	</modules>
 
 	<build>
