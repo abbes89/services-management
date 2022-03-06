@@ -1,0 +1,70 @@
+version: '3'
+services:
+  rabbitmq-container:
+    container_name: rabbitmq-container
+    build: ./rabbitmq
+    image: rabbitmq
+    ports:
+      - 5672:5672 #JMS Port
+      - 15672:15672 #Management Port - default user:pass = guest:guest
+    networks:
+      - spring-cloud-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:15672" ]
+      interval: 10s
+      timeout: 10s
+      retries: 2
+    volumes:
+      - ./rabbitmq/definitions.json:/etc/rabbitmq/definitions.json:ro
+      - ./rabbitmq/rabbitmq.config:/etc/rabbitmq/rabbitmq.config:ro
+  management-service-server:
+    container_name: management-service-server
+    build: ./management-service
+    image: webapp
+    ports:
+      - 8080:8080
+    depends_on:
+      rabbitmq-container:
+        condition: service_healthy
+    links:
+      - rabbitmq-container
+    networks:
+      - spring-cloud-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8080/api/services" ]
+      interval: 15s
+      timeout: 10s
+      retries: 2
+  consumer-server:
+    container_name: consumer-server
+    build: ./management-consumer-service
+    image: consumer
+    ports:
+      - 8081:8081
+    networks:
+      - spring-cloud-network
+    depends_on:
+      management-service-server:
+        condition: service_healthy
+      rabbitmq-container:
+        condition: service_healthy
+    links:
+      - rabbitmq-container
+  producer-server:
+    container_name: producer-server
+    build: ./management-producer-service
+    image: producer
+    ports:
+      - 8082:8082
+    environment:
+      SPRING_RABBITMQ_HOST: rabbitmq-container
+    depends_on:
+      rabbitmq-container:
+        condition: service_healthy
+    links:
+      - rabbitmq-container
+    networks:
+      - spring-cloud-network
+networks:
+  spring-cloud-network:
+    driver: bridge
