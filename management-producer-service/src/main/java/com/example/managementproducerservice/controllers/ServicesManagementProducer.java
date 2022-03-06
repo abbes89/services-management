@@ -13,7 +13,7 @@ public class ServicesManagementProducer {
 
     private StreamBridge streamBridge;
 
-    @PostMapping("/msg")
+    @PostMapping("/send")
     public ResponseEntity<String> sendService(@RequestBody String service){
         streamBridge.send("producer-out-0", service);
 
